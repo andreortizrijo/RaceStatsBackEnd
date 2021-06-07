@@ -1,4 +1,5 @@
 from django.conf.global_settings import SECRET_KEY
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -62,10 +63,10 @@ class UserView(APIView):
         return Response(serializer.data)
 
 class LogoutView(APIView):
-    def post(self, request):
+    def post(self):
         response = Response()
-        
         response.delete_cookie('token')
+        
         response.data = {
             'message':'You have logout!'
         }
