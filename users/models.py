@@ -7,3 +7,9 @@ class User(AbstractUser):
     password = models.CharField(max_length=255)
 
     REQUIRED_FIELDS = []
+
+class WhiteList(models.Model):
+    token = models.CharField(max_length=255, unique=True)
+
+class BlackList(models.Model):
+    token = models.CharField(max_length=255)

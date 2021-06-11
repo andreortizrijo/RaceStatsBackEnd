@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, WhiteList, BlackList
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,3 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+class WhiteListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhiteList
+        fields = '__all__'
+
+class BlackListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlackList
+        fields = '__all__'

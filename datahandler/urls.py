@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import ReceiveView
+from .views import IncomingData
 
 urlpatterns = [
-    #path('register', ReceiveView.as_view()),
+    path('upload', IncomingData.as_view()),
 ]

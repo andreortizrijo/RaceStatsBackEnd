@@ -1,11 +1,12 @@
 from django.conf.global_settings import SECRET_KEY
+from django.http.response import FileResponse, HttpResponse
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .models import User
-from .serializers import UserSerializer
-import jwt, datetime
+from .models import User, WhiteList, BlackList
+from .serializers import UserSerializer, WhiteListSerializer, BlackListSerializer
+import jwt, datetime, cryptocode
 
 class RegisterView(APIView):
     def post(self, request):
@@ -16,6 +17,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
+        response = Response()
         username = request.data['username']
         password = request.data['password']
 
@@ -27,17 +29,21 @@ class LoginView(APIView):
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password!')
 
-        expiration = datetime.datetime.utcnow() + datetime.timedelta(days=30)
-
         payload = {
             'id':user.id,
-            'expiration':expiration.isoformat(),
             'created_at':datetime.datetime.utcnow().isoformat(),
         }
 
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-        response = Response()
+        whiteList = WhiteList.objects.filter(token=token).first()
+        blackList = BlackList.objects.filter(token=token).first()
+
+        if blackList is None:
+            if whiteList is None:
+                serializer = WhiteListSerializer(data={'token':token})
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
         
         response.data = {
             'token':token
@@ -62,13 +68,43 @@ class UserView(APIView):
 
         return Response(serializer.data)
 
+class UserToken(APIView):
+    def get(self):
+
+        return Response()
+
 class LogoutView(APIView):
-    def post(self):
-        response = Response()
-        response.delete_cookie('token')
+    def post(self, request):
+        token = request.headers['token']
+        whiteList = WhiteList.objects.filter(token=token).first()
+        blackList = BlackList.objects.filter(token=token).first()
         
+        if whiteList:
+            whiteList.delete()
+
+        if blackList is None:
+            serializer = BlackListSerializer(data={'token':token})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        response = Response()
         response.data = {
             'message':'You have logout!'
         }
 
         return response
+
+def download_file(request):
+    #token = request.headers['token']
+    
+    token = cryptocode.encrypt('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MywiZXhwaXJhdGlvbiI6IjIwMjEtMDctMDhUMTA6MzU6MTEuMDc0Nzc5IiwiY3JlYXRlZF9hdCI6IjIwMjEtMDYtMDhUMTA6MzU6MTEuMDc0Nzc5In0.cDCidKq5kOUUeYjJI2MJBOI4BrNh1GAKh5Xdw99nJAc', SECRET_KEY)
+
+    data = """[AUTH]
+token = %s""" % token
+
+    response = HttpResponse(data, headers={
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'attachment; filename="config.ini"'
+    })
+
+    return response
