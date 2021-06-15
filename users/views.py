@@ -1,5 +1,5 @@
 from django.conf.global_settings import SECRET_KEY
-from django.http.response import FileResponse, HttpResponse
+from django.http.response import HttpResponse
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -68,11 +68,6 @@ class UserView(APIView):
 
         return Response(serializer.data)
 
-class UserToken(APIView):
-    def get(self):
-
-        return Response()
-
 class LogoutView(APIView):
     def post(self, request):
         token = request.headers['token']
@@ -95,9 +90,9 @@ class LogoutView(APIView):
         return response
 
 def download_file(request):
-    #token = request.headers['token']
+    token = request.headers['token']
     
-    token = cryptocode.encrypt('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MywiZXhwaXJhdGlvbiI6IjIwMjEtMDctMDhUMTA6MzU6MTEuMDc0Nzc5IiwiY3JlYXRlZF9hdCI6IjIwMjEtMDYtMDhUMTA6MzU6MTEuMDc0Nzc5In0.cDCidKq5kOUUeYjJI2MJBOI4BrNh1GAKh5Xdw99nJAc', SECRET_KEY)
+    token = cryptocode.encrypt(token, SECRET_KEY)
 
     data = """[AUTH]
 token = %s""" % token
