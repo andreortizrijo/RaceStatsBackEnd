@@ -91,7 +91,6 @@ class LogoutView(APIView):
 
 def download_file(request):
     token = request.headers['token']
-    
     token = cryptocode.encrypt(token, SECRET_KEY)
 
     data = """[AUTH]
