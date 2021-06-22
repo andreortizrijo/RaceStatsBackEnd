@@ -54,7 +54,7 @@ class CarTyreCoreTemperatureSerializer(serializers.ModelSerializer):
         model = CarTyreCoreTemperature
         fields = '__all__'
 
-class CarDirtyLevelSerializer(serializers.ModelSerializer):
+class CarTyreDirtyLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarTyreDirtyLevel
         fields = '__all__'
@@ -87,6 +87,11 @@ class CarWheelPressureSerializer(serializers.ModelSerializer):
 class CarTyreRadiusSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarTyreRadius
+        fields = '__all__'
+
+class CarSuspensionTravelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarSuspensionTravel
         fields = '__all__'
 
 class TimeSerializer(serializers.ModelSerializer):

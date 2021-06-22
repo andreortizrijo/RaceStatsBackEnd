@@ -13,11 +13,11 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+
+        return Response(serializer.data, status.HTTP_200_OK)
 
 class LoginView(APIView):
     def post(self, request):
-        response = Response()
         username = request.data['username']
         password = request.data['password']
 
@@ -44,12 +44,12 @@ class LoginView(APIView):
                 serializer = WhiteListSerializer(data={'token':token})
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-        
-        response.data = {
-            'token':token
-        }
 
-        return response
+                return Response(token, status.HTTP_200_OK)
+
+            return Response('Token Banned', status.HTTP_401_UNAUTHORIZED)
+
+        return Response('Login successfull', status.HTTP_200_OK)
 
 class UserView(APIView):
     def get(self, request):
@@ -66,37 +66,42 @@ class UserView(APIView):
         user = User.objects.filter(id=payload['id']).first()
         serializer = UserSerializer(user)
 
-        return Response(serializer.data)
+        return Response(serializer.data, status.HTTP_200_OK)
 
 class LogoutView(APIView):
     def post(self, request):
         token = request.headers['token']
         whiteList = WhiteList.objects.filter(token=token).first()
-        blackList = BlackList.objects.filter(token=token).first()
         
-        if whiteList:
+        if whiteList.active == False:
             whiteList.delete()
 
-        if blackList is None:
-            serializer = BlackListSerializer(data={'token':token})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+        serializer = BlackListSerializer(data={'token':token})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        response = Response()
-        response.data = {
-            'message':'You have logout!'
-        }
-
-        return response
+        return Response('Logout successfull', status.HTTP_200_OK)
 
 def download_file(request):
     token = request.headers['token']
-    token = cryptocode.encrypt(token, SECRET_KEY)
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Unauthenticated!')
+
+    user = User.objects.filter(id=payload['id']).first()
+    whiteList = WhiteList.objects.filter(user=user, active=False).first()
+
+    if whiteList:
+        whiteList.active = True
+        whiteList.save()
+        token = cryptocode.encrypt(whiteList.token, SECRET_KEY)
 
     data = """[AUTH]
 token = %s""" % token
 
-    response = HttpResponse(data, headers={
+    response = HttpResponse(data, status.HTTP_200_OK, headers={
         'Content-Type': 'application/json',
         'Content-Disposition': 'attachment; filename="config.ini"'
     })

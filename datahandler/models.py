@@ -48,103 +48,103 @@ class CarTyreWear(models.Model):
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarCamberRAD(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarWheelSlip(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarTyreInnerTemperature(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarTyreMiddleTemperature(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarTyreOuterTemperature(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarTyreCoreTemperature(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 class CarTyreDirtyLevel(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarWheelLoad(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarBrakeTemperature(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarDamage(models.Model):
 	section1 = models.CharField(max_length=255)
 	section2 = models.CharField(max_length=255)
 	section3 = models.CharField(max_length=255)
 	section4 = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarSuspensionTravel(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarAccG(models.Model):
 	x = models.CharField(max_length=255)
 	y = models.CharField(max_length=255)
 	z = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarWheelPressure(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class CarTyreRadius(models.Model):
 	tyrefl = models.CharField(max_length=255)
 	tyrefr = models.CharField(max_length=255)
 	tyrerl = models.CharField(max_length=255)
 	tyrerr = models.CharField(max_length=255)
-	carid = models.ForeignKey(CarInfo, on_delete=models.CASCADE, default=None)
+	sessionid = models.ForeignKey(SessionInfo, on_delete=models.CASCADE, default=None)
 
 class TimeInfo(models.Model):
 	currenttime = models.CharField(max_length=255)
