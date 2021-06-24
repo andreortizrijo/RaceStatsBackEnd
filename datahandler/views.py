@@ -8,7 +8,7 @@ from .serializers import *
 from .models import *
 from users.serializers import UserSerializer
 from users.models import User
-import jwt, json, cryptocode, pickle
+import jwt, json, cryptocode
 
 class IncomingData(APIView):
         
@@ -34,7 +34,7 @@ def getUser(data):
         payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
-    
+
     return User.objects.filter(id=payload['id']).first()
 
 def getsessionId(model, token):
@@ -168,3 +168,55 @@ def fromat_array(data, serializer, category, number, istyre):
 
     payload['sessionid'] = session_id.sessioninfo_id
     save(serializer, payload)
+
+class GetRecordInfo(APIView):
+    def get(self, request):
+        token = request.headers['token']
+        content = []
+        structure = {}
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        user = User.objects.filter(id=payload['id']).first()
+        records = SessionInfo.record.through.objects.filter(user_id=user)
+        for record in records.iterator():
+
+            sessions = SessionInfo.objects.filter(id=record.sessioninfo_id)
+            for session in sessions.iterator():
+                car = CarInfo.objects.filter(sessionid=session.id).first()
+                time = TimeInfo.objects.filter(sessionid=session.id).first()
+
+                structure = {
+                    'number': session.id,
+                    'track': session.track,
+                    'trackconfiguration': session.trackconfiguration,
+                    'carmodel': car.model,
+                    'besttime': time.besttime
+                }
+               
+                content.append(structure)
+                print(content)
+
+        return Response(content, status=status.HTTP_200_OK)
+
+class GetSessionData(APIView):
+    def get(self, request):
+        session_id = request.headers['session']
+        content = []
+        structure = {}
+
+        session = SessionInfo.objects.filter(id=session_id).first()
+        cars = CarInfo.objects.filter(sessionid=session.id)
+
+        for car in cars.iterator():
+            structure = {
+                'rpm': car.rpm,
+                'gear': car.gear
+            }
+
+            content.append(structure)
+
+        return Response(content, status=status.HTTP_200_OK)

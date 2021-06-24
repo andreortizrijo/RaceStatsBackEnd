@@ -11,7 +11,7 @@ class User(AbstractUser):
 class WhiteList(models.Model):
     token = models.CharField(max_length=255, unique=True)
     active = models.BooleanField(default=False)
-    userid = models.ForeignKey(User, on_delete=models.CASCADE)
+    userid = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
 
 class BlackList(models.Model):
     token = models.CharField(max_length=255)

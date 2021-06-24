@@ -41,7 +41,13 @@ class LoginView(APIView):
 
         if blackList is None:
             if whiteList is None:
-                serializer = WhiteListSerializer(data={'token':token})
+                data = {
+                    'token':token,
+                    'active':False,
+                    'userid':user.id
+                }
+
+                serializer = WhiteListSerializer(data=data)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
 
@@ -84,24 +90,27 @@ class LogoutView(APIView):
 
 def download_file(request):
     token = request.headers['token']
-
+    
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
 
     user = User.objects.filter(id=payload['id']).first()
-    whiteList = WhiteList.objects.filter(user=user, active=False).first()
+    whiteList = WhiteList.objects.filter(token=token, userid_id=user.id, active=False).first()
 
     if whiteList:
         whiteList.active = True
         whiteList.save()
         token = cryptocode.encrypt(whiteList.token, SECRET_KEY)
+    else:
+        whiteList = WhiteList.objects.filter(token=token, userid_id=user.id, active=True).first()
+        token = cryptocode.encrypt(whiteList.token, SECRET_KEY)
 
     data = """[AUTH]
 token = %s""" % token
 
-    response = HttpResponse(data, status.HTTP_200_OK, headers={
+    response = HttpResponse(data, headers={
         'Content-Type': 'application/json',
         'Content-Disposition': 'attachment; filename="config.ini"'
     })
