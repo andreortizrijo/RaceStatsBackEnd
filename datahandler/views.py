@@ -23,7 +23,6 @@ class IncomingData(APIView):
                 track_info(lst)
                 car_info(lst)
                 time_info(lst)
-                car_array_properties(lst)
 
         return Response('Data Uploaded with Success', status=status.HTTP_200_OK)
 
@@ -97,19 +96,6 @@ def car_info(data):
         'brakepedal':car_property['CAR_BRAKE_PEDAL'],
         'clutchpedal':car_property['CAR_CLUTCH_PEDAL'],
         'steerangle':car_property['CAR_STEER_ANGLE'],
-        'fuel':car_property['CAR_FUEL'],
-        'maxfuel':car_property['CAR_MAX_FUEL'],
-        'aidfuelrate':car_property['CAR_AID_FUEL_RATE'],
-        'aidtyrerate':car_property['CAR_AID_TYRE_RATE'],
-        'aidstability':car_property['CAR_AID_STABILITY'],
-        'aidautoclutch':car_property['CAR_AID_AUTO_CLUTCH'],
-        'aidautoblip':car_property['CAR_AID_AUTO_BLIP'],
-        'hasdrs':car_property['CAR_HAS_DRS'],
-        'hasers':car_property['CAR_HAS_ERS'],
-        'haskers':car_property['CAR_HAS_KERS'],
-        'turboboost':car_property['CAR_TURBO_BOOST'],
-        'finalff':car_property['CAR_FINAL_FF'],
-        'aicontroll':car_property['CAR_AI_CONTROLL'],
         'tyrecompound':car_property['CAR_TYRE_COMPOUND'],
         'sessionid': session_id.sessioninfo_id
     }
@@ -128,46 +114,6 @@ def time_info(data):
     }
 
     save(TimeSerializer, time_data)
-
-def car_array_properties(data):
-    fromat_array(data, CarTyreWearSerializer, 'CAR_TYRE_WEAR', 4, True)
-    fromat_array(data, CarCamberRADSerializer, 'CAR_CAMBER_RAD', 4, True)
-    fromat_array(data, CarWheelSlipSerializer, 'CAR_WHEEL_SLIP', 4, True)
-    fromat_array(data, CarTyreInnerTemperatureSerializer, 'CAR_TYRE_INNER_TEMPERATURE', 4, True)
-    fromat_array(data, CarTyreMiddleTemperatureSerializer, 'CAR_TYRE_MIDDLE_TEMPERATURE', 4, True)
-    fromat_array(data, CarTyreOuterTemperatureSerializer, 'CAR_TYRE_OUTER_TEMPERATURE', 4, True)
-    fromat_array(data, CarTyreCoreTemperatureSerializer, 'CAR_TYRE_CORE_TEMPERATURE', 4, True)
-    fromat_array(data, CarTyreDirtyLevelSerializer, 'CAR_TYRE_DIRTY_LEVEL', 4, True)
-    fromat_array(data, CarWheelLoadSerializer, 'CAR_WHEEL_LOAD', 4, True)
-    fromat_array(data, CarBrakeTemperatureSerializer, 'CAR_BRAKE_TEMPERATURE', 4, True)
-    fromat_array(data, CarDamageSerializer, 'CAR_DAMAGE', 4, False)
-    fromat_array(data, CarSuspensionTravelSerializer, 'CAR_SUSPENSION_TRAVEL', 4, True)
-    fromat_array(data, CarAccGSerializer, 'CAR_ACCG', 3, False)
-    fromat_array(data, CarWheelPressureSerializer, 'CAR_WHEEL_PRESSURE', 4, True)
-    fromat_array(data, CarTyreRadiusSerializer, 'CAR_TYRE_RADIUS', 4, True)
-
-def fromat_array(data, serializer, category, number, istyre):
-    payload = {}
-    property = data['CAR_INFO'][category].replace('[','')
-    property = property.replace(']','')
-    property = property.split(',')
-    session_id = getsessionId(SessionInfo, data['METADATA']['TOKEN'])
-
-    if istyre:
-        propertieslist = ['tyrefl', 'tyrefr', 'tyrerl', 'tyrerr']
-        for i in range(number):
-            payload[propertieslist[i]] = property[i]
-    if category == 'CAR_ACCG':
-        propertieslist = ['x', 'y', 'z']
-        for i in range(number):
-            payload[propertieslist[i]] = property[i]
-    if category == 'CAR_DAMAGE':
-        propertieslist = ['section1', 'section2', 'section3', 'section4']
-        for i in range(number):
-            payload[propertieslist[i]] = property[i]
-
-    payload['sessionid'] = session_id.sessioninfo_id
-    save(serializer, payload)
 
 class GetRecordInfo(APIView):
     def get(self, request):
