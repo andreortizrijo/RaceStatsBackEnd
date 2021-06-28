@@ -196,9 +196,8 @@ class GetRecordInfo(APIView):
                     'carmodel': car.model,
                     'besttime': time.besttime
                 }
-               
+
                 content.append(structure)
-                print(content)
 
         return Response(content, status=status.HTTP_200_OK)
 
