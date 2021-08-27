@@ -10,34 +10,76 @@ from users.serializers import UserSerializer
 from users.models import User
 import jwt, json, cryptocode
 
-class IncomingData(APIView):
+class RegisterSession(APIView):
+    def post(self, request):
+        data = getData(request)
+        token = getToken(data)
+        user = getUser(token)
+
+        session_info(data, user)
+
+        return Response('Session Uploaded with Success', status=status.HTTP_200_OK)
+
+class CarData(APIView):
         
     def post(self, request):
-        data = request.data
-        data = json.loads(data['data'])
+        data = getData(request)
+        token = getToken(data[0])
+        user = getUser(token)
+        sessioninfo_id = getsessionId(SessionInfo, user)
 
         for lst in data:
-            if 'SESSION_INFO' in lst:
-                session_info(lst)
-            else:
-                track_info(lst)
-                car_info(lst)
-                time_info(lst)
+            car_info(lst, sessioninfo_id)
 
         return Response('Data Uploaded with Success', status=status.HTTP_200_OK)
 
-def getUser(data):
-    token = cryptocode.decrypt(data, SECRET_KEY)
+class TrackData(APIView):
+
+    def post(self, request):
+        data = getData(request)
+        token = getToken(data[0])
+        user = getUser(token)
+        sessioninfo_id = getsessionId(SessionInfo, user)
+
+        for lst in data:
+            track_info(lst, sessioninfo_id)
+
+        return Response('Data Uploaded with Success', status=status.HTTP_200_OK)
+
+class TimeData(APIView):
+
+    def post(self, request):
+        data = getData(request)
+        token = getToken(data[0])
+        user = getUser(token)
+
+        sessioninfo_id = getsessionId(SessionInfo, user)
+
+        for lst in data:
+            time_info(lst, sessioninfo_id)
+
+        return Response('Data Uploaded with Success', status=status.HTTP_200_OK)
+
+def getData(request):
+    data = request.data
+    data = json.loads(data['data'])
+    return data
+
+def getToken(data):
+    token = data['METADATA']['TOKEN']
+    return token
+
+def getUser(token):
+    user = cryptocode.decrypt(token, SECRET_KEY)
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+        payload = jwt.decode(user, SECRET_KEY, algorithms='HS256')
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
 
     return User.objects.filter(id=payload['id']).first()
 
-def getsessionId(model, token):
-    user = getUser(token)
+def getsessionId(model, user):
     session_id = model.record.through.objects.filter(user_id=user).last()
     return session_id
 
@@ -46,9 +88,8 @@ def save(serializer, data):
     content_serialized.is_valid(raise_exception=True)
     return content_serialized.save()
 
-def session_info(data):
+def session_info(data, user):
     session_data = {}
-    user = getUser(data['METADATA']['TOKEN'])
     session_property = data['SESSION_INFO']
 
     if session_property['SESSION_TRACK_CONFIGURATION'] == '':
@@ -62,10 +103,9 @@ def session_info(data):
     current_session = save(SessionSerializer, session_data)
     current_session.record.add(user)
 
-def track_info(data):
+def track_info(data, session_id):
     track_data = {}
     track_property = data['TRACK_INFO']
-    session_id = getsessionId(SessionInfo, data['METADATA']['TOKEN'])
 
     track_data = {
         'splinelength':track_property['TRACK_SPLINE_LENGTH'],
@@ -81,10 +121,9 @@ def track_info(data):
 
     save(TrackSerializer, track_data)
 
-def car_info(data):
+def car_info(data, session_id):
     car_data = {}
     car_property = data['CAR_INFO']
-    session_id = getsessionId(SessionInfo, data['METADATA']['TOKEN'])
 
     car_data = {
         'model':car_property['CAR_MODEL'],
@@ -102,10 +141,9 @@ def car_info(data):
 
     save(CarSerializer, car_data)
 
-def time_info(data):
+def time_info(data, session_id):
     time_data = {}
     time_property = data['TIME_INFO']
-    session_id = getsessionId(SessionInfo, data['METADATA']['TOKEN'])
 
     time_data = {
         'currenttime':time_property['TIME_CURRENT_TIME'],
@@ -128,8 +166,8 @@ class GetRecordInfo(APIView):
 
         user = User.objects.filter(id=payload['id']).first()
         records = SessionInfo.record.through.objects.filter(user_id=user)
+        
         for record in records.iterator():
-
             sessions = SessionInfo.objects.filter(id=record.sessioninfo_id)
             for session in sessions.iterator():
                 car = CarInfo.objects.filter(sessionid=session.id).first()
@@ -147,19 +185,24 @@ class GetRecordInfo(APIView):
 
         return Response(content, status=status.HTTP_200_OK)
 
-class GetSessionData(APIView):
+class Live(APIView):
     def get(self, request):
-        session_id = request.headers['session']
+        token = request.headers['token']
         content = []
         structure = {}
 
-        session = SessionInfo.objects.filter(id=session_id).first()
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        record = SessionInfo.record.through.objects.filter(user_id=payload['id']).last()
+        session = SessionInfo.objects.filter(id=record.sessioninfo_id).last()
         cars = CarInfo.objects.filter(sessionid=session.id)
 
         for car in cars.iterator():
             structure = {
                 'rpm': car.rpm,
-                'gear': car.gear
             }
 
             content.append(structure)
