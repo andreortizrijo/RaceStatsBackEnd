@@ -198,11 +198,12 @@ class Live(APIView):
 
         record = SessionInfo.record.through.objects.filter(user_id=payload['id']).last()
         session = SessionInfo.objects.filter(id=record.sessioninfo_id).last()
-        cars = CarInfo.objects.filter(sessionid=session.id)
+        cars = CarInfo.objects.filter(sessionid=session.id).order_by('-id')[:20]
 
         for car in cars.iterator():
             structure = {
                 'rpm': car.rpm,
+                'speedkmh': car.speedkmh,
             }
 
             content.append(structure)
