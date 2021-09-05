@@ -189,7 +189,7 @@ class Live(APIView):
     def get(self, request):
         token = request.headers['token']
         content = []
-        structure = {}
+        data = {}
 
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
@@ -198,14 +198,20 @@ class Live(APIView):
 
         record = SessionInfo.record.through.objects.filter(user_id=payload['id']).last()
         session = SessionInfo.objects.filter(id=record.sessioninfo_id).last()
-        cars = CarInfo.objects.filter(sessionid=session.id).order_by('-id')[:20]
+        cars = CarInfo.objects.filter(sessionid=session.id).order_by('-id')[:100]
+        times = TimeInfo.objects.filter(sessionid=session.id).order_by('-currenttime')[:100]
 
-        for car in cars.iterator():
-            structure = {
+        for index, car in enumerate(cars.iterator()):
+            data = {
+                'timestamp': times[index].currenttime,
                 'rpm': car.rpm,
                 'speedkmh': car.speedkmh,
+                'gear': car.gear,
+                'gaspedal': car.gaspedal,
+                'brakepedal': car.brakepedal,
+                'steerangle': car.steerangle
             }
 
-            content.append(structure)
+            content.append(data)
 
         return Response(content, status=status.HTTP_200_OK)
