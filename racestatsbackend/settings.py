@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'datahandler',
+    'teams',
 ]
 
 MIDDLEWARE = [
@@ -136,4 +137,5 @@ CORS_ALLOW_METHODS = list(default_methods)
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'token',
     'session',
+    'teamid',
 ]

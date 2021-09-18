@@ -4,7 +4,7 @@ from .models import User, WhiteList, BlackList
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'password']
+        fields = ['id', 'email', 'username', 'password', 'team']
         extra_kwargs = {
             'password':{'write_only': True}
         }

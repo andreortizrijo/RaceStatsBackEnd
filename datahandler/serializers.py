@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 from users.serializers import UserSerializer
-
 class SessionSerializer(serializers.ModelSerializer):
     record = UserSerializer(read_only=True, many=False)
 

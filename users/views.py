@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .models import User, WhiteList, BlackList
+from teams.models import *
 from .serializers import UserSerializer, WhiteListSerializer, BlackListSerializer
 import jwt, datetime, cryptocode
 
@@ -51,7 +52,18 @@ class LoginView(APIView):
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
 
-                return Response(token, status.HTTP_200_OK)
+                if user.team:
+                    content = {
+                        'token': token,
+                        'team': user.team.id,
+                    }
+                else:
+                    content = {
+                        'token': token,
+                        'team': 0,
+                    }
+
+                return Response(content, status.HTTP_200_OK)
 
             return Response('Token Banned', status.HTTP_401_UNAUTHORIZED)
 
@@ -116,3 +128,36 @@ token = %s""" % token
     })
 
     return response
+
+class JoinTeam(APIView):
+    def put(self, request):
+        token = request.headers['token']
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        user = User.objects.filter(id=payload['id']).first()
+        team = Team.objects.filter(id=request.data['teamid']).first()
+
+        user.team = team
+        user.save()
+
+        return Response(team.id)
+
+class LeaveTeam(APIView):
+    def put(self, request):
+        token = request.headers['token']
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        user = User.objects.filter(id=payload['id']).first()
+
+        user.team = None
+        user.save()
+
+        return Response('Team Leaved')

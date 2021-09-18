@@ -1,4 +1,3 @@
-from users.serializers import UserSerializer
 from django.conf.global_settings import SECRET_KEY
 from rest_framework import status
 from rest_framework.views import APIView
@@ -6,7 +5,6 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import *
 from .models import *
-from users.serializers import UserSerializer
 from users.models import User
 import jwt, json, cryptocode
 
