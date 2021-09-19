@@ -9,4 +9,5 @@ urlpatterns = [
     path('download', download_file),
     path('jointeam', JoinTeam.as_view()),
     path('leaveteam', LeaveTeam.as_view()),
+    path('rank', GetRank.as_view()),
 ]

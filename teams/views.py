@@ -52,12 +52,19 @@ class Teams(APIView):
 			return Response(content, status=status.HTTP_200_OK)
 		
 		team = Team.objects.filter(id=request.headers['teamid']).first()
-		users = User.objects.filter(team_id=team.id).all()
+		usersid = User.objects.filter(team_id=team.id).all().values_list('id', flat=True)
+		usersname = User.objects.filter(team_id=team.id).all().values_list('username', flat=True)
+
+		description = ''
+
+		if team.description == None:
+			description = 'Team has no description.'
+
 		structure = {
 			'id': team.id,
 			'name': team.name,
-			'description': team.description,
-			'members': len(users)
+			'description': description,
+			'members': {'id': usersid, 'name': usersname}
 		}
 
 		return Response(structure, status=status.HTTP_200_OK)
