@@ -151,21 +151,21 @@ class LeaveTeam(APIView):
         try:
             if request.headers['token']:
                 token = request.headers['token']
-
                 try:
                     payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
                 except jwt.ExpiredSignatureError:
                     raise AuthenticationFailed('Unauthenticated!')
-
                 user = User.objects.filter(id=payload['id']).first()
+                team = Team.objects.filter(owner=user.id).first()
+                if user.id == team.owner.id:
+                    team.delete()
         except:
             user = User.objects.filter(id=request.data['member']).first()
 
         user.team = None
         user.save()
 
-        return Response('Team Leaved')
-
+        return Response('Team leaved with success')
 class GetRank(APIView):
     def get(self, request):
         token = request.headers['token']
