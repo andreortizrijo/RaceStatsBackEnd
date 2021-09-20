@@ -31,7 +31,10 @@ class Teams(APIView):
 		user.team = team
 		user.save()
 
-		return Response(serialed_data.data, status=status.HTTP_200_OK)
+		team = Team.objects.filter(owner=user.id).last();
+		res = team.id
+
+		return Response(res, status=status.HTTP_200_OK)
 
 	def get(self, request):
 		content = []
@@ -59,6 +62,8 @@ class Teams(APIView):
 
 		if team.description == None:
 			description = 'Team has no description.'
+		else:
+			description = team.description
 
 		structure = {
 			'id': team.id,
